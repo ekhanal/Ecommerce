@@ -82,7 +82,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Shyam Rana</h3>
+                    <h3>Mandeep Giri</h3>
                 </div>
 
                 <div class="swiper-slide slide">
@@ -96,7 +96,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Rashmi Regmi</h3>
+                    <h3>Sweta Tara Tuladhar</h3>
                 </div>
 
                 <div class="swiper-slide slide">
@@ -110,7 +110,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Biplap Neupane</h3>
+                    <h3>Bigyan Bhattrai</h3>
                 </div>
 
                 <div class="swiper-slide slide">
@@ -124,7 +124,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Sweta Khanal</h3>
+                    <h3>Elina Khanal</h3>
                 </div>
 
                 <div class="swiper-slide slide">
@@ -138,7 +138,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Sital Shrestha</h3>
+                    <h3>Mandeep Giri</h3>
                 </div>
 
                 <div class="swiper-slide slide">
@@ -152,7 +152,7 @@ if(isset($_SESSION['user_id'])){
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <h3>Rejina Grung</h3>
+                    <h3>Bigyan Bhattrai</h3>
                 </div>
 
             </div>

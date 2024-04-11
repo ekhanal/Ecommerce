@@ -12,36 +12,53 @@ if(isset($_SESSION['user_id'])){
 };
 
 if(isset($_POST['order'])){
+    $hasOutOfStockProduct = false;
 
-   $name = $_POST['name'];
-   $name = filter_var($name, FILTER_SANITIZE_STRING);
-   $number = $_POST['number'];
-   $number = filter_var($number, FILTER_SANITIZE_STRING);
-   $email = $_POST['email'];
-   $email = filter_var($email, FILTER_SANITIZE_STRING);
-   $method = $_POST['method'];
-   $method = filter_var($method, FILTER_SANITIZE_STRING);
-   $address =  $_POST['flat'] .', '. $_POST['street'] .', '. $_POST['city'] .', '. $_POST['state'];
-   $address = filter_var($address, FILTER_SANITIZE_STRING);
-   $total_products = $_POST['total_products'];
-   $total_price = $_POST['total_price'];
+    foreach (json_decode($_POST["cart_data"]) as $data) {
+        $product = $conn->prepare("SELECT * FROM `products` WHERE id = ?");
+        $product->execute([$data->pid]);
+        $productData = $product->fetch(PDO::FETCH_ASSOC);
+        if (count($productData) && $data->quantity > $productData["quantity"]) {
+            $hasOutOfStockProduct = true;
 
-   $check_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
-   $check_cart->execute([$user_id]);
+            $message[] = 'Out of stock!';
+        } else {
+            $remainingQuantity = $productData["quantity"] - $data->quantity;
+            $updateData = $conn->prepare("UPDATE `products` SET quantity = ? WHERE id = ?");
+            $updateData->execute([$remainingQuantity, $productData["id"]]);
+        }
+    }
 
-   if($check_cart->rowCount() > 0){
-
-      $insert_order = $conn->prepare("INSERT INTO `orders`(user_id, name, number, email, method, address, total_products, total_price) VALUES(?,?,?,?,?,?,?,?)");
-      $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $total_price]);
-
-      $delete_cart = $conn->prepare("DELETE FROM `cart` WHERE user_id = ?");
-      $delete_cart->execute([$user_id]);
-
-      $message[] = 'Order placed successfully!';
-   }else{
-      $message[] = 'Your cart is empty';
-   }
-
+    if (!$hasOutOfStockProduct) {
+        $name = $_POST['name'];
+        $name = filter_var($name, FILTER_SANITIZE_STRING);
+        $number = $_POST['number'];
+        $number = filter_var($number, FILTER_SANITIZE_STRING);
+        $email = $_POST['email'];
+        $email = filter_var($email, FILTER_SANITIZE_STRING);
+        $method = $_POST['method'];
+        $method = filter_var($method, FILTER_SANITIZE_STRING);
+        $address =  $_POST['flat'] .', '. $_POST['street'] .', '. $_POST['city'] .', '. $_POST['state'];
+        $address = filter_var($address, FILTER_SANITIZE_STRING);
+        $total_products = $_POST['total_products'];
+        $total_price = $_POST['total_price'];
+     
+        $check_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
+        $check_cart->execute([$user_id]);
+     
+        if($check_cart->rowCount() > 0){
+     
+           $insert_order = $conn->prepare("INSERT INTO `orders`(user_id, name, number, email, method, address, total_products, total_price) VALUES(?,?,?,?,?,?,?,?)");
+           $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $total_price]);
+     
+           $delete_cart = $conn->prepare("DELETE FROM `cart` WHERE user_id = ?");
+           $delete_cart->execute([$user_id]);
+     
+           $message[] = 'Order placed successfully!';
+        }else{
+           $message[] = 'Your cart is empty';
+        }
+    }
 }
 
 ?>
@@ -79,14 +96,19 @@ if(isset($_POST['order'])){
          $cart_items[] = '';
          $select_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
          $select_cart->execute([$user_id]);
+         $cart_data = [];
          if($select_cart->rowCount() > 0){
             while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){
+                $cart_data[] = [
+                    "pid" => $fetch_cart["pid"],
+                    "quantity" => $fetch_cart["quantity"],
+                ];
                $cart_items[] = $fetch_cart['name'].' ('.$fetch_cart['price'].' x '. $fetch_cart['quantity'].') - ';
                $total_products = implode($cart_items);
                $grand_total += ($fetch_cart['price'] * $fetch_cart['quantity']);
       ?>
                 <p> <?= $fetch_cart['name']; ?>
-                    <span>(<?= '$'.$fetch_cart['price'].'/- x '. $fetch_cart['quantity']; ?>)</span>
+                    <span>(<?= 'RS'.$fetch_cart['price'].'/- x '. $fetch_cart['quantity']; ?>)</span>
                 </p>
                 <?php
             }
@@ -94,6 +116,7 @@ if(isset($_POST['order'])){
             echo '<p class="empty">Your cart is empty!</p>';
          }
       ?>
+                <input type="hidden" name="cart_data" value="<?php echo htmlentities(json_encode($cart_data)); ?>">
                 <input type="hidden" name="total_products" value="<?= $total_products; ?>">
                 <input type="hidden" name="total_price" value="<?= $grand_total; ?>" value="">
                 <div class="grand-total">Grand total : <span>Rs <?= $grand_total; ?>/-</span></div>
